@@ -175,7 +175,7 @@ pub(crate) mod increase_supply {
                 .call_method(
                     ComponentAddress::from_str(&self.component_address).unwrap(),
                     "increase_supply",
-                    args![parse_arg(&self.amount).unwrap()],
+                    args![123],
                 )
                 .drop_all_proofs_in_workspace()
                 .build_as_instructions();
