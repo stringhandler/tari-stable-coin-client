@@ -153,11 +153,15 @@ pub(crate) mod increase_supply {
     use tari_template_lib::prelude::ComponentAddress;
     use tari_template_lib::prelude::ResourceAddress;
     use tari_transaction::SubstateRequirement;
+    use tari_transaction::Transaction;
     use tari_utilities::hex::from_hex;
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
+        pub account_component_address: String,
+        pub admin_badge_resource: String,
+
         pub component_address: String,
 
         pub amount: String,
@@ -174,16 +178,28 @@ pub(crate) mod increase_supply {
             // let template_address= ;
             let method = "increase_supply".to_string();
 
-            // let transaction = Transaction::builder()
-            // .create_proof(admin_account, admin_badge_resource)
-            // .
-            let mut instructions = vec![];
+            let transaction = Transaction::builder()
+                .create_proof(
+                    ComponentAddress::from_hex(&self.account_component_address).unwrap(),
+                    admin_badge_resource,
+                )
+                .put_last_instruction_output_on_workspace("proof")
+                .call_method(
+                    ComponentAddress::from_hex(&self.component_address).unwrap(),
+                    "increase_supply",
+                    args![parse_arg(&self.amount).unwrap()],
+                )
+                .drop_all_proofs_in_workspace()
+                .build_as_instructions();
 
-            instructions.push(Instruction::CallMethod {
-                component_address: ComponentAddress::from_hex(&self.component_address).unwrap(),
-                method,
-                args: args![parse_arg(&self.amount).unwrap(),],
-            });
+            // .
+            // let mut instructions = vec![];
+
+            // instructions.push(Instruction::CallMethod {
+            // component_address: ComponentAddress::from_hex(&self.component_address).unwrap(),
+            // method,
+            // args: args![parse_arg(&self.amount).unwrap(),],
+            // });
 
             client
                 .submit_instructions(
