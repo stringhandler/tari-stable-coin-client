@@ -1,11 +1,8 @@
 //  Copyright 2023 The Tari Project
 //  SPDX-License-Identifier: BSD-3-Clause
 
-use crate::daemon_client::DaemonClient;
 use clap::Parser;
 use clap::Subcommand;
-use multiaddr::Multiaddr;
-use tari_engine_types::parse_arg;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -85,18 +82,10 @@ pub mod login {
 pub(crate) mod instantiate {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
+
     use tari_engine_types::instruction::Instruction;
     use tari_engine_types::parse_arg;
     use tari_engine_types::TemplateAddress;
-    use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
-    use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
-    use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
@@ -143,18 +132,17 @@ pub(crate) mod instantiate {
 pub(crate) mod increase_supply {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
-    use tari_engine_types::instruction::Instruction;
+
     use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
+
     use tari_transaction::Transaction;
-    use tari_utilities::hex::from_hex;
+
+    use std::str::FromStr;
+    use tari_template_lib::prelude::ResourceAddress;
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
@@ -178,14 +166,14 @@ pub(crate) mod increase_supply {
             // let template_address= ;
             let method = "increase_supply".to_string();
 
-            let transaction = Transaction::builder()
+            let instructions = Transaction::builder()
                 .create_proof(
-                    ComponentAddress::from_hex(&self.account_component_address).unwrap(),
-                    admin_badge_resource,
+                    ComponentAddress::from_str(&self.account_component_address).unwrap(),
+                    ResourceAddress::from_str(&self.admin_badge_resource).unwrap(),
                 )
                 .put_last_instruction_output_on_workspace("proof")
                 .call_method(
-                    ComponentAddress::from_hex(&self.component_address).unwrap(),
+                    ComponentAddress::from_str(&self.component_address).unwrap(),
                     "increase_supply",
                     args![parse_arg(&self.amount).unwrap()],
                 )
@@ -220,17 +208,14 @@ pub(crate) mod increase_supply {
 pub(crate) mod decrease_supply {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
+
     use tari_engine_types::instruction::Instruction;
     use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
+
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
@@ -278,17 +263,13 @@ pub(crate) mod decrease_supply {
 pub(crate) mod total_supply {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
+
     use tari_engine_types::instruction::Instruction;
-    use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
+
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
@@ -334,17 +315,14 @@ pub(crate) mod total_supply {
 pub(crate) mod withdraw {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
+
     use tari_engine_types::instruction::Instruction;
     use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
+
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
@@ -392,17 +370,15 @@ pub(crate) mod withdraw {
 pub(crate) mod deposit {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
+
     use std::str::FromStr;
     use tari_engine_types::instruction::Instruction;
-    use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
     use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
+
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
@@ -465,17 +441,13 @@ pub(crate) mod deposit {
 pub(crate) mod create_new_admin {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
+
     use tari_engine_types::instruction::Instruction;
-    use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
+
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
@@ -521,17 +493,14 @@ pub(crate) mod create_new_admin {
 pub(crate) mod create_new_user {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
+
     use tari_engine_types::instruction::Instruction;
     use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
+
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
@@ -579,17 +548,14 @@ pub(crate) mod create_new_user {
 pub(crate) mod remove_from_blacklist {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
+
     use tari_engine_types::instruction::Instruction;
     use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
+
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
@@ -637,17 +603,14 @@ pub(crate) mod remove_from_blacklist {
 pub(crate) mod get_user_data {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
+
     use tari_engine_types::instruction::Instruction;
     use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
+
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
@@ -695,17 +658,14 @@ pub(crate) mod get_user_data {
 pub(crate) mod set_user_data {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
-    use serde_json::json;
-    use std::str::FromStr;
+
     use tari_engine_types::instruction::Instruction;
     use tari_engine_types::parse_arg;
-    use tari_engine_types::TemplateAddress;
+
     use tari_template_lib::args;
-    use tari_template_lib::prelude::Amount;
+
     use tari_template_lib::prelude::ComponentAddress;
-    use tari_template_lib::prelude::ResourceAddress;
-    use tari_transaction::SubstateRequirement;
-    use tari_utilities::hex::from_hex;
+
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
