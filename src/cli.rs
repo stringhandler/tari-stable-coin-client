@@ -18,7 +18,7 @@ pub(crate) struct Cli {
     #[clap(
         long,
         alias = "template_address",
-        default_value = "0xc7afb97ef2e5f6ab46dce0695216a01078a9c3ec017185930b734825776d230a"
+        default_value = "0xfd92dc534dbb9577bcc72a221acfac5c87bdb359ed0517ce44648fd5d028bf82"
     )]
     pub template: String,
     #[clap(long, short = 'd')]
@@ -27,8 +27,8 @@ pub(crate) struct Cli {
     pub dry_run: bool,
     #[clap(subcommand)]
     pub command: Command,
-    #[clap(long, short = 'f', default_value = "100")]
-    pub fees: u64,
+    #[clap(long, short = 'f', default_value = "1000")]
+    pub max_fee: u64,
     #[clap(long, short = 'a', default_value = "TestAccount_0")]
     pub default_account: String,
 }
@@ -112,6 +112,7 @@ pub(crate) mod instantiate {
             self,
             mut client: DaemonClient,
             template_address: TemplateAddress,
+            dump_buckets: bool,
             fees: u64,
         ) {
             // let template_address= ;
@@ -128,7 +129,7 @@ pub(crate) mod instantiate {
                             parse_arg(&self.token_metadata).unwrap(),
                         ],
                     },
-                    false,
+                    dump_buckets,
                     false,
                     fees,
                     vec![],
@@ -173,6 +174,9 @@ pub(crate) mod increase_supply {
             // let template_address= ;
             let method = "increase_supply".to_string();
 
+            // let transaction = Transaction::builder()
+            // .create_proof(admin_account, admin_badge_resource)
+            // .
             let mut instructions = vec![];
 
             instructions.push(Instruction::CallMethod {

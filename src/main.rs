@@ -32,56 +32,57 @@ async fn main() {
         }
 
         Command::Instantiate(com) => {
-            com.run(client, template_address, cli.fees).await;
+            com.run(client, template_address, cli.dump_buckets, cli.max_fee)
+                .await;
         }
 
         Command::IncreaseSupply(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
 
         Command::DecreaseSupply(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
 
         Command::TotalSupply(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
 
         Command::Withdraw(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
 
         Command::Deposit(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
 
         Command::CreateNewAdmin(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
 
         Command::CreateNewUser(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
 
         Command::RemoveFromBlacklist(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
 
         Command::GetUserData(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
 
         Command::SetUserData(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.fees)
+            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
     }

@@ -6,21 +6,16 @@ edition = "2021"
 
 [dependencies]
 
-# tari_wallet_daemon_client = { git = "https://github.com/tari-project/tari-dan", branch = "development" }
-# tari_engine_types = { git = "https://github.com/tari-project/tari-dan", branch = "development" }
-# tari_template_lib = { git = "https://github.com/tari-project/tari-dan", branch = "development" }
-# tari_transaction = { git = "https://github.com/tari-project/tari-dan", branch = "development" }
+tari_wallet_daemon_client = { git = "https://github.com/tari-project/tari-dan", branch = "development" }
+tari_engine_types = { git = "https://github.com/tari-project/tari-dan", branch = "development" }
+tari_template_lib = { git = "https://github.com/tari-project/tari-dan", branch = "development" }
+tari_transaction = { git = "https://github.com/tari-project/tari-dan", branch = "development" }
 
-tari_wallet_daemon_client = { path = "d:/projects/tari-dan/clients/wallet_daemon_client" }
-tari_engine_types = { path = "d:/projects/tari-dan/dan_layer/engine_types" }
-tari_template_lib = { path = "d:/projects/tari-dan/dan_layer/template_lib" }
-tari_transaction = { path = "d:/projects/tari-dan/dan_layer/transaction" }
-
-tari_utilities = "*"
+tari_utilities ="*"
 
 
 clap = { version = "4", features = ["derive", "env"] }
 multiaddr = "0.14.0"
-reqwest = { version = "*", features = ["json"] }
-serde_json = "*"
-tokio = { version = "1", features = ["full"] }
+reqwest={ version="*", features=["json"]}
+serde_json="*"
+tokio ={version="1", features = ["full"] }

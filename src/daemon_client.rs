@@ -74,7 +74,7 @@ impl DaemonClient {
         instructions: Vec<Instruction>,
         dump_buckets: bool,
         is_dry_run: bool,
-        fees: u64,
+        max_fee: u64,
         other_inputs: Vec<SubstateRequirement>,
     ) {
         let mut client =
@@ -85,15 +85,13 @@ impl DaemonClient {
 
         let tx = CallInstructionRequest {
             instructions,
-            fee_account: ComponentAddressOrName::Name(self.default_account.to_string()),
+            fee_account: ComponentAddressOrName::Name(self.default_account.clone()),
             dump_outputs_into: if dump_buckets {
-                Some(ComponentAddressOrName::Name(
-                    self.default_account.to_string(),
-                ))
+                Some(ComponentAddressOrName::Name(self.default_account.clone()))
             } else {
                 None
             },
-            max_fee: fees,
+            max_fee,
             inputs: other_inputs,
             override_inputs: None,
             is_dry_run,
