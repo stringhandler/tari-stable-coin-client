@@ -323,10 +323,15 @@ pub(crate) mod withdraw {
 
     use tari_template_lib::prelude::ComponentAddress;
 
+    use std::str::FromStr;
+    use tari_template_lib::prelude::ResourceAddress;
+    use tari_transaction::Transaction;
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
+        pub account_component_address: String,
+        pub user_badge_resource: String,
         pub component_address: String,
 
         pub amount: String,
@@ -343,13 +348,25 @@ pub(crate) mod withdraw {
             // let template_address= ;
             let method = "withdraw".to_string();
 
-            let mut instructions = vec![];
-
-            instructions.push(Instruction::CallMethod {
-                component_address: ComponentAddress::from_hex(&self.component_address).unwrap(),
-                method,
-                args: args![parse_arg(&self.amount).unwrap(),],
-            });
+            let instructions = Transaction::builder()
+                .create_proof(
+                    ComponentAddress::from_str(&self.account_component_address).unwrap(),
+                    ResourceAddress::from_str(&self.user_badge_resource).unwrap(),
+                )
+                .put_last_instruction_output_on_workspace("proof")
+                .call_method(
+                    ComponentAddress::from_str(&self.component_address).unwrap(),
+                    "withdraw",
+                    args![self.amount.parse::<u64>().unwrap()],
+                )
+                .put_last_instruction_output_on_workspace("bucket")
+                .call_method(
+                    ComponentAddress::from_str(&self.account_component_address).unwrap(),
+                    "deposit",
+                    args![Variable("bucket"),],
+                )
+                .drop_all_proofs_in_workspace()
+                .build_as_instructions();
 
             client
                 .submit_instructions(
