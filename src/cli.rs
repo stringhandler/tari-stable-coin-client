@@ -501,10 +501,16 @@ pub(crate) mod create_new_user {
 
     use tari_template_lib::prelude::ComponentAddress;
 
+    use std::str::FromStr;
+    use tari_template_lib::prelude::ResourceAddress;
+    use tari_transaction::Transaction;
     use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
+        pub account_component_address: String,
+        pub admin_badge_resource: String,
+
         pub component_address: String,
 
         pub user_id: String,
@@ -521,13 +527,25 @@ pub(crate) mod create_new_user {
             // let template_address= ;
             let method = "create_new_user".to_string();
 
-            let mut instructions = vec![];
-
-            instructions.push(Instruction::CallMethod {
-                component_address: ComponentAddress::from_hex(&self.component_address).unwrap(),
-                method,
-                args: args![parse_arg(&self.user_id).unwrap(),],
-            });
+            let instructions = Transaction::builder()
+                .create_proof(
+                    ComponentAddress::from_str(&self.account_component_address).unwrap(),
+                    ResourceAddress::from_str(&self.admin_badge_resource).unwrap(),
+                )
+                .put_last_instruction_output_on_workspace("proof")
+                .call_method(
+                    ComponentAddress::from_str(&self.component_address).unwrap(),
+                    "create_new_user",
+                    args![self.user_id.parse::<u64>().unwrap()],
+                )
+                .put_last_instruction_output_on_workspace("bucket")
+                .call_method(
+                    ComponentAddress::from_str(&self.account_component_address).unwrap(),
+                    "deposit",
+                    args![Variable("bucket"),],
+                )
+                .drop_all_proofs_in_workspace()
+                .build_as_instructions();
 
             client
                 .submit_instructions(
