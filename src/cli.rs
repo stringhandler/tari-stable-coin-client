@@ -177,7 +177,6 @@ pub(crate) mod increase_supply {
             cli: Cli,
         ) {
             // let template_address= ;
-            let method = "increase_supply".to_string();
 
             let instructions = Transaction::builder()
                 .create_proof(
@@ -226,8 +225,6 @@ pub(crate) mod decrease_supply {
     use tari_template_lib::args;
 
     use tari_template_lib::prelude::ComponentAddress;
-
-    use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
@@ -281,12 +278,11 @@ pub(crate) mod total_supply {
 
     use tari_template_lib::prelude::ComponentAddress;
 
-    use tari_utilities::hex::Hex;
+    use crate::Cli;
+    use std::str::FromStr;
 
     #[derive(Debug, Args, Clone)]
-    pub struct Command {
-        pub component_address: String,
-    }
+    pub struct Command {}
 
     impl Command {
         pub async fn run(
@@ -295,6 +291,7 @@ pub(crate) mod total_supply {
             dump_buckets: bool,
             is_dry_run: bool,
             fees: u64,
+            cli: Cli,
         ) {
             // let template_address= ;
             let method = "total_supply".to_string();
@@ -302,7 +299,7 @@ pub(crate) mod total_supply {
             let mut instructions = vec![];
 
             instructions.push(Instruction::CallMethod {
-                component_address: ComponentAddress::from_hex(&self.component_address).unwrap(),
+                component_address: ComponentAddress::from_str(&cli.default_coin_component).unwrap(),
                 method,
                 args: args![],
             });
@@ -313,9 +310,7 @@ pub(crate) mod total_supply {
                     dump_buckets,
                     is_dry_run,
                     fees,
-                    vec![format!("component_{}", self.component_address)
-                        .parse()
-                        .unwrap()],
+                    vec![cli.default_coin_component.parse().unwrap()],
                 )
                 .await;
             println!("done");
@@ -357,7 +352,6 @@ pub(crate) mod withdraw {
             fees: u64,
         ) {
             // let template_address= ;
-            let method = "withdraw".to_string();
 
             let instructions = Transaction::builder()
                 .create_proof(
@@ -406,8 +400,6 @@ pub(crate) mod deposit {
 
     use tari_template_lib::prelude::ComponentAddress;
     use tari_template_lib::prelude::ResourceAddress;
-
-    use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
@@ -476,8 +468,6 @@ pub(crate) mod create_new_admin {
 
     use tari_template_lib::prelude::ComponentAddress;
 
-    use tari_utilities::hex::Hex;
-
     #[derive(Debug, Args, Clone)]
     pub struct Command {
         pub component_address: String,
@@ -522,9 +512,6 @@ pub(crate) mod create_new_user {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
 
-    use tari_engine_types::instruction::Instruction;
-    use tari_engine_types::parse_arg;
-
     use tari_template_lib::args;
 
     use tari_template_lib::prelude::ComponentAddress;
@@ -532,7 +519,6 @@ pub(crate) mod create_new_user {
     use std::str::FromStr;
     use tari_template_lib::prelude::ResourceAddress;
     use tari_transaction::Transaction;
-    use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
@@ -553,7 +539,6 @@ pub(crate) mod create_new_user {
             fees: u64,
         ) {
             // let template_address= ;
-            let method = "create_new_user".to_string();
 
             let instructions = Transaction::builder()
                 .create_proof(
@@ -601,8 +586,6 @@ pub(crate) mod remove_from_blacklist {
     use tari_template_lib::args;
 
     use tari_template_lib::prelude::ComponentAddress;
-
-    use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
@@ -657,8 +640,6 @@ pub(crate) mod get_user_data {
 
     use tari_template_lib::prelude::ComponentAddress;
 
-    use tari_utilities::hex::Hex;
-
     #[derive(Debug, Args, Clone)]
     pub struct Command {
         pub component_address: String,
@@ -711,8 +692,6 @@ pub(crate) mod set_user_data {
     use tari_template_lib::args;
 
     use tari_template_lib::prelude::ComponentAddress;
-
-    use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
