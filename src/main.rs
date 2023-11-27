@@ -26,6 +26,7 @@ async fn main() {
 
     let client = DaemonClient::new(jrpc, token, cli.default_account.clone());
     let template_address = from_hex(&cli.template).unwrap().try_into().unwrap();
+    let cli_clone_hack = cli.clone();
     match cli.command {
         Command::Login(com) => {
             com.run(client).await;
@@ -37,8 +38,14 @@ async fn main() {
         }
 
         Command::IncreaseSupply(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
-                .await;
+            com.run(
+                client,
+                cli.dump_buckets,
+                cli.dry_run,
+                cli.max_fee,
+                cli_clone_hack,
+            )
+            .await;
         }
 
         Command::DecreaseSupply(com) => {

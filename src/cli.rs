@@ -4,7 +4,7 @@
 use clap::Parser;
 use clap::Subcommand;
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[clap(author, version, about, long_about = None)]
 #[clap(propagate_version = true)]
 pub(crate) struct Cli {
@@ -24,10 +24,25 @@ pub(crate) struct Cli {
     pub dry_run: bool,
     #[clap(subcommand)]
     pub command: Command,
-    #[clap(long, short = 'f', default_value = "1000")]
+    #[clap(long, short = 'f', default_value = "1500")]
     pub max_fee: u64,
     #[clap(long, short = 'a', default_value = "TestAccount_0")]
     pub default_account: String,
+    #[clap(
+        long,
+        default_value = "component_73e29570996175ffbe06d3c46da598beac210951ca5f1af35c974bbcf6c62e65"
+    )]
+    pub default_coin_component: String,
+    #[clap(
+        long,
+        default_value = "resource_4aa272debc7a842ab758884ec5fd403e9cc04cde38d3de1ba07a382f189abfa5"
+    )]
+    pub admin_badge_resource: String,
+    #[clap(
+        long,
+        default_value = "resource_cb723e9609c723463bd19454604f82352c22a5ca596fdd6503f7dac3211e4fdb"
+    )]
+    pub user_badge_resource: String,
 }
 
 impl Cli {
@@ -131,6 +146,7 @@ pub(crate) mod instantiate {
 
 pub(crate) mod increase_supply {
     use crate::daemon_client::DaemonClient;
+    use crate::Cli;
     use clap::Args;
 
     use tari_engine_types::parse_arg;
@@ -148,11 +164,7 @@ pub(crate) mod increase_supply {
     #[derive(Debug, Args, Clone)]
     pub struct Command {
         pub account_component_address: String,
-        pub admin_badge_resource: String,
-
-        pub component_address: String,
-
-        pub amount: String,
+        pub amount: u64,
     }
 
     impl Command {
@@ -162,6 +174,7 @@ pub(crate) mod increase_supply {
             dump_buckets: bool,
             is_dry_run: bool,
             fees: u64,
+            cli: Cli,
         ) {
             // let template_address= ;
             let method = "increase_supply".to_string();
@@ -169,13 +182,13 @@ pub(crate) mod increase_supply {
             let instructions = Transaction::builder()
                 .create_proof(
                     ComponentAddress::from_str(&self.account_component_address).unwrap(),
-                    ResourceAddress::from_str(&self.admin_badge_resource).unwrap(),
+                    ResourceAddress::from_str(&cli.admin_badge_resource).unwrap(),
                 )
                 .put_last_instruction_output_on_workspace("proof")
                 .call_method(
-                    ComponentAddress::from_str(&self.component_address).unwrap(),
+                    ComponentAddress::from_str(&cli.default_coin_component).unwrap(),
                     "increase_supply",
-                    args![123],
+                    args![self.amount],
                 )
                 .drop_all_proofs_in_workspace()
                 .build_as_instructions();
@@ -195,9 +208,7 @@ pub(crate) mod increase_supply {
                     dump_buckets,
                     is_dry_run,
                     fees,
-                    vec![format!("component_{}", self.component_address)
-                        .parse()
-                        .unwrap()],
+                    vec![cli.default_coin_component.parse().unwrap()],
                 )
                 .await;
             println!("done");
