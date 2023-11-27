@@ -43,6 +43,11 @@ pub(crate) struct Cli {
         default_value = "resource_cb723e9609c723463bd19454604f82352c22a5ca596fdd6503f7dac3211e4fdb"
     )]
     pub user_badge_resource: String,
+    #[clap(
+        long,
+        default_value = "resource_69b0baf784d761a85734782dc996685a5b6f439016364d3c10b5751f1e248d56"
+    )]
+    pub coin_resource: String,
 }
 
 impl Cli {
@@ -76,6 +81,8 @@ pub(crate) enum Command {
     GetUserData(get_user_data::Command),
 
     SetUserData(set_user_data::Command),
+
+    Send(send::Command),
 }
 
 pub mod login {
@@ -149,8 +156,6 @@ pub(crate) mod increase_supply {
     use crate::Cli;
     use clap::Args;
 
-    use tari_engine_types::parse_arg;
-
     use tari_template_lib::args;
 
     use tari_template_lib::prelude::ComponentAddress;
@@ -159,7 +164,6 @@ pub(crate) mod increase_supply {
 
     use std::str::FromStr;
     use tari_template_lib::prelude::ResourceAddress;
-    use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
@@ -322,9 +326,6 @@ pub(crate) mod withdraw {
     use crate::daemon_client::DaemonClient;
     use clap::Args;
 
-    use tari_engine_types::instruction::Instruction;
-    use tari_engine_types::parse_arg;
-
     use tari_template_lib::args;
 
     use tari_template_lib::prelude::ComponentAddress;
@@ -332,7 +333,6 @@ pub(crate) mod withdraw {
     use std::str::FromStr;
     use tari_template_lib::prelude::ResourceAddress;
     use tari_transaction::Transaction;
-    use tari_utilities::hex::Hex;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
@@ -451,6 +451,66 @@ pub(crate) mod deposit {
                     vec![format!("component_{}", self.component_address)
                         .parse()
                         .unwrap()],
+                )
+                .await;
+            println!("done");
+        }
+    }
+}
+
+pub(crate) mod send {
+    use crate::daemon_client::DaemonClient;
+    use clap::Args;
+
+    use tari_template_lib::args;
+
+    use tari_template_lib::prelude::ComponentAddress;
+
+    use crate::Cli;
+    use std::str::FromStr;
+    use tari_template_lib::prelude::ResourceAddress;
+    use tari_transaction::Transaction;
+
+    #[derive(Debug, Args, Clone)]
+    pub struct Command {
+        pub from_component: String,
+        pub to_component: String,
+        pub amount: u64,
+    }
+
+    impl Command {
+        pub async fn run(self, mut client: DaemonClient, is_dry_run: bool, fees: u64, cli: Cli) {
+            let instructions = Transaction::builder()
+                .create_proof(
+                    ComponentAddress::from_str(&self.from_component).unwrap(),
+                    ResourceAddress::from_str(&cli.user_badge_resource).unwrap(),
+                )
+                .put_last_instruction_output_on_workspace("proof")
+                .call_method(
+                    ComponentAddress::from_str(&self.from_component).unwrap(),
+                    "withdraw",
+                    args![
+                        ResourceAddress::from_str(&cli.coin_resource)
+                            .expect("bad resource address"),
+                        self.amount
+                    ],
+                )
+                .put_last_instruction_output_on_workspace("bucket")
+                .call_method(
+                    ComponentAddress::from_str(&self.to_component).unwrap(),
+                    "deposit",
+                    args![Variable("bucket"),],
+                )
+                .drop_all_proofs_in_workspace()
+                .build_as_instructions();
+
+            client
+                .submit_instructions(
+                    instructions,
+                    false,
+                    is_dry_run,
+                    fees,
+                    vec![cli.default_coin_component.parse().unwrap()],
                 )
                 .await;
             println!("done");

@@ -98,5 +98,9 @@ async fn main() {
             com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
         }
+        Command::Send(com) => {
+            com.run(client, cli.dry_run, cli.max_fee, cli_clone_hack)
+                .await;
+        }
     }
 }
