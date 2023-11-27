@@ -1,23 +1,17 @@
 //  Copyright 2023 The Tari Project
 //  SPDX-License-Identifier: BSD-3-Clause
 
-
-
-
-
-
 use tari_engine_types::instruction::Instruction;
 use tari_transaction::SubstateRequirement;
 use tari_wallet_daemon_client::types::AuthLoginRequest;
 use tari_wallet_daemon_client::types::CallInstructionRequest;
 
+use tari_utilities::hex::Hex;
 use tari_wallet_daemon_client::ComponentAddressOrName;
 use tari_wallet_daemon_client::WalletDaemonClient;
-
 pub struct DaemonClient {
     endpoint: String,
     auth_token: Option<String>,
-    last_id: usize,
     default_account: String,
 }
 
@@ -30,7 +24,6 @@ impl DaemonClient {
         Self {
             endpoint,
             auth_token,
-            last_id: 0,
             default_account,
         }
     }
@@ -103,8 +96,7 @@ impl DaemonClient {
 
         let r2 = client.submit_instruction(tx).await.unwrap();
 
-        dbg!(r2);
-
+        dbg!(r2.transaction_id.as_bytes().to_vec().to_hex());
         //"dump_outputs_into": self.default_account,
     }
 

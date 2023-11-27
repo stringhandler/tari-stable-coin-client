@@ -3,22 +3,6 @@
 version = 3
 
 [[package]]
-name = "TariStableCoin"
-version = "0.0.1"
-dependencies = [
- "clap 4.4.8",
- "multiaddr",
- "reqwest",
- "serde_json",
- "tari_engine_types",
- "tari_template_lib",
- "tari_transaction",
- "tari_utilities",
- "tari_wallet_daemon_client",
- "tokio",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3805,6 +3789,22 @@ version = "0.53.0-dan.0"
 source = "git+https://github.com/tari-project/tari.git?branch=feature-dan2#9a871656e4ce1464d54107a4e3fc52181ed13e02"
 dependencies = [
  "futures 0.3.29",
+]
+
+[[package]]
+name = "tari_stable_coin_example"
+version = "0.0.1"
+dependencies = [
+ "clap 4.4.8",
+ "multiaddr",
+ "reqwest",
+ "serde_json",
+ "tari_engine_types",
+ "tari_template_lib",
+ "tari_transaction",
+ "tari_utilities",
+ "tari_wallet_daemon_client",
+ "tokio",
 ]
 
 [[package]]

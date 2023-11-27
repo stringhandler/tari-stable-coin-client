@@ -80,8 +80,14 @@ async fn main() {
         }
 
         Command::CreateNewUser(com) => {
-            com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
-                .await;
+            com.run(
+                client,
+                cli.dump_buckets,
+                cli.dry_run,
+                cli.max_fee,
+                cli_clone_hack,
+            )
+            .await;
         }
 
         Command::RemoveFromBlacklist(com) => {

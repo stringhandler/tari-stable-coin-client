@@ -576,18 +576,15 @@ pub(crate) mod create_new_user {
 
     use tari_template_lib::prelude::ComponentAddress;
 
+    use crate::Cli;
     use std::str::FromStr;
     use tari_template_lib::prelude::ResourceAddress;
     use tari_transaction::Transaction;
-
     #[derive(Debug, Args, Clone)]
     pub struct Command {
         pub account_component_address: String,
-        pub admin_badge_resource: String,
-
-        pub component_address: String,
-
-        pub user_id: String,
+        pub user_id: u64,
+        pub send_to_user_component: String,
     }
 
     impl Command {
@@ -597,23 +594,24 @@ pub(crate) mod create_new_user {
             dump_buckets: bool,
             is_dry_run: bool,
             fees: u64,
+            cli: Cli,
         ) {
             // let template_address= ;
 
             let instructions = Transaction::builder()
                 .create_proof(
                     ComponentAddress::from_str(&self.account_component_address).unwrap(),
-                    ResourceAddress::from_str(&self.admin_badge_resource).unwrap(),
+                    ResourceAddress::from_str(&cli.admin_badge_resource).unwrap(),
                 )
                 .put_last_instruction_output_on_workspace("proof")
                 .call_method(
-                    ComponentAddress::from_str(&self.component_address).unwrap(),
+                    ComponentAddress::from_str(&cli.default_coin_component).unwrap(),
                     "create_new_user",
-                    args![self.user_id.parse::<u64>().unwrap()],
+                    args![self.user_id],
                 )
                 .put_last_instruction_output_on_workspace("bucket")
                 .call_method(
-                    ComponentAddress::from_str(&self.account_component_address).unwrap(),
+                    ComponentAddress::from_str(&self.send_to_user_component).unwrap(),
                     "deposit",
                     args![Variable("bucket"),],
                 )
@@ -626,9 +624,7 @@ pub(crate) mod create_new_user {
                     dump_buckets,
                     is_dry_run,
                     fees,
-                    vec![format!("component_{}", self.component_address)
-                        .parse()
-                        .unwrap()],
+                    vec![cli.default_coin_component.parse().unwrap()],
                 )
                 .await;
             println!("done");
