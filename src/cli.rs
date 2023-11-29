@@ -15,7 +15,7 @@ pub(crate) struct Cli {
     #[clap(
         long,
         alias = "template_address",
-        default_value = "0xfd92dc534dbb9577bcc72a221acfac5c87bdb359ed0517ce44648fd5d028bf82"
+        default_value = "0x6c658001d3c8587b194990ea0ffd643c38685d5d7d13ef398ac62875c79fbab4"
     )]
     pub template: String,
     #[clap(long, short = 'd')]
@@ -30,22 +30,22 @@ pub(crate) struct Cli {
     pub default_account: String,
     #[clap(
         long,
-        default_value = "component_73e29570996175ffbe06d3c46da598beac210951ca5f1af35c974bbcf6c62e65"
+        default_value = "component_ea50fa2002a7898eef13a851ed41cacc713b6bf15c5ab4530d1ac5acc4d06263"
     )]
     pub default_coin_component: String,
     #[clap(
         long,
-        default_value = "resource_4aa272debc7a842ab758884ec5fd403e9cc04cde38d3de1ba07a382f189abfa5"
+        default_value = "resource_bc5ab4d0974aa8347d5060cf20f9f0b0b415bfb45559f6d94e913d1cfb04b614"
     )]
     pub admin_badge_resource: String,
     #[clap(
         long,
-        default_value = "resource_cb723e9609c723463bd19454604f82352c22a5ca596fdd6503f7dac3211e4fdb"
+        default_value = "resource_d7d57fd8a795d243f0d93d4e7e651bb210a0f0f990ceb242712b56f926b636e0"
     )]
     pub user_badge_resource: String,
     #[clap(
         long,
-        default_value = "resource_69b0baf784d761a85734782dc996685a5b6f439016364d3c10b5751f1e248d56"
+        default_value = "resource_7af49ffcb972d90dd04a29ee32c099b46140d8c0422a7200c0c3118636a75f0d"
     )]
     pub coin_resource: String,
 }
@@ -330,16 +330,15 @@ pub(crate) mod withdraw {
 
     use tari_template_lib::prelude::ComponentAddress;
 
+    use crate::Cli;
     use std::str::FromStr;
     use tari_template_lib::prelude::ResourceAddress;
     use tari_transaction::Transaction;
 
     #[derive(Debug, Args, Clone)]
     pub struct Command {
-        pub account_component_address: String,
-        pub user_badge_resource: String,
-        pub component_address: String,
-
+        pub admin_account_component: String,
+        pub into_account: String,
         pub amount: String,
     }
 
@@ -350,23 +349,24 @@ pub(crate) mod withdraw {
             dump_buckets: bool,
             is_dry_run: bool,
             fees: u64,
+            cli: Cli,
         ) {
             // let template_address= ;
 
             let instructions = Transaction::builder()
                 .create_proof(
-                    ComponentAddress::from_str(&self.account_component_address).unwrap(),
-                    ResourceAddress::from_str(&self.user_badge_resource).unwrap(),
+                    ComponentAddress::from_str(&self.admin_account_component).unwrap(),
+                    ResourceAddress::from_str(&cli.user_badge_resource).unwrap(),
                 )
                 .put_last_instruction_output_on_workspace("proof")
                 .call_method(
-                    ComponentAddress::from_str(&self.component_address).unwrap(),
+                    ComponentAddress::from_str(&cli.default_coin_component).unwrap(),
                     "withdraw",
                     args![self.amount.parse::<u64>().unwrap()],
                 )
                 .put_last_instruction_output_on_workspace("bucket")
                 .call_method(
-                    ComponentAddress::from_str(&self.account_component_address).unwrap(),
+                    ComponentAddress::from_str(&self.into_account).unwrap(),
                     "deposit",
                     args![Variable("bucket"),],
                 )
@@ -374,15 +374,7 @@ pub(crate) mod withdraw {
                 .build_as_instructions();
 
             client
-                .submit_instructions(
-                    instructions,
-                    dump_buckets,
-                    is_dry_run,
-                    fees,
-                    vec![format!("component_{}", self.component_address)
-                        .parse()
-                        .unwrap()],
-                )
+                .submit_instructions(instructions, dump_buckets, is_dry_run, fees, vec![])
                 .await;
             println!("done");
         }

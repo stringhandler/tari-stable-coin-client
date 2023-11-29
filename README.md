@@ -22,3 +22,11 @@ Sending can be done via:
 e.g.
 `cargo run -- -e http://localhost:9000 -a asdf send component_a266bd051058772a03edd8bc0503c8021b278f03bb60a619a077c3fdc9141f74 component_763ae73e696169153d2058d882cc3337926ef2fd1e0e318a05bbb4cac7b7e5ca 1`
 
+TODO:
+- Get registrations
+- blacklist people
+- trace transactions
+- deploy indexer
+- martin rfcs 
+- look at priorities on board
+
