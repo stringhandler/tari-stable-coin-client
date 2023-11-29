@@ -356,7 +356,7 @@ pub(crate) mod withdraw {
             let instructions = Transaction::builder()
                 .create_proof(
                     ComponentAddress::from_str(&self.admin_account_component).unwrap(),
-                    ResourceAddress::from_str(&cli.user_badge_resource).unwrap(),
+                    ResourceAddress::from_str(&cli.admin_badge_resource).unwrap(),
                 )
                 .put_last_instruction_output_on_workspace("proof")
                 .call_method(
@@ -574,7 +574,7 @@ pub(crate) mod create_new_user {
     use tari_transaction::Transaction;
     #[derive(Debug, Args, Clone)]
     pub struct Command {
-        pub account_component_address: String,
+        pub admin_account_component: String,
         pub user_id: u64,
         pub send_to_user_component: String,
     }
@@ -592,7 +592,7 @@ pub(crate) mod create_new_user {
 
             let instructions = Transaction::builder()
                 .create_proof(
-                    ComponentAddress::from_str(&self.account_component_address).unwrap(),
+                    ComponentAddress::from_str(&self.admin_account_component).unwrap(),
                     ResourceAddress::from_str(&cli.admin_badge_resource).unwrap(),
                 )
                 .put_last_instruction_output_on_workspace("proof")
