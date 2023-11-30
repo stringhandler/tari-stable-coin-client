@@ -26,7 +26,4 @@ TODO:
 - Get registrations
 - blacklist people
 - trace transactions
-- deploy indexer
-- martin rfcs 
-- look at priorities on board
 

@@ -76,6 +76,8 @@ pub(crate) enum Command {
 
     CreateNewUser(create_new_user::Command),
 
+    BlacklistUser(blacklist_user::Command),
+
     RemoveFromBlacklist(remove_from_blacklist::Command),
 
     GetUserData(get_user_data::Command),
@@ -617,6 +619,73 @@ pub(crate) mod create_new_user {
                     is_dry_run,
                     fees,
                     vec![cli.default_coin_component.parse().unwrap()],
+                )
+                .await;
+            println!("done");
+        }
+    }
+}
+
+pub(crate) mod blacklist_user {
+    use crate::daemon_client::DaemonClient;
+    use clap::Args;
+
+    use tari_template_lib::args;
+
+    use tari_template_lib::models::NonFungibleAddress;
+    use tari_template_lib::prelude::ComponentAddress;
+    use tari_transaction::SubstateRequirement;
+
+    use crate::Cli;
+    use std::str::FromStr;
+    use tari_engine_types::parse_arg;
+    use tari_engine_types::substate::SubstateAddress;
+    use tari_template_lib::prelude::NonFungibleId;
+    use tari_template_lib::prelude::ResourceAddress;
+    use tari_template_lib::prelude::VaultId;
+    use tari_transaction::Transaction;
+
+    #[derive(Debug, Args, Clone)]
+    pub struct Command {
+        pub admin_account_component: String,
+        pub from_vault: String,
+        pub user_id: u64,
+    }
+
+    impl Command {
+        pub async fn run(self, mut client: DaemonClient, is_dry_run: bool, fees: u64, cli: Cli) {
+            // let template_address= ;
+
+            let instructions = Transaction::builder()
+                .create_proof(
+                    ComponentAddress::from_str(&self.admin_account_component).unwrap(),
+                    ResourceAddress::from_str(&cli.admin_badge_resource).unwrap(),
+                )
+                .put_last_instruction_output_on_workspace("proof")
+                .call_method(
+                    ComponentAddress::from_str(&cli.default_coin_component).unwrap(),
+                    "blacklist_user",
+                    args![VaultId::from_hex(&self.from_vault).unwrap(), self.user_id],
+                )
+                .drop_all_proofs_in_workspace()
+                .build_as_instructions();
+
+            client
+                .submit_instructions(
+                    instructions,
+                    false,
+                    is_dry_run,
+                    fees,
+                    vec![
+                        format!("vault_{}", self.from_vault).parse().unwrap(),
+                        SubstateRequirement::new(
+                            SubstateAddress::NonFungible(NonFungibleAddress::new(
+                                ResourceAddress::from_str(&cli.user_badge_resource).unwrap(),
+                                NonFungibleId::from_u64(self.user_id),
+                            )),
+                            None,
+                        ),
+                    ],
                 )
                 .await;
             println!("done");

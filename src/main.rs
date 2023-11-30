@@ -96,6 +96,10 @@ async fn main() {
             .await;
         }
 
+        Command::BlacklistUser(com) => {
+            com.run(client, cli.dry_run, cli.max_fee, cli_clone_hack)
+                .await;
+        }
         Command::RemoveFromBlacklist(com) => {
             com.run(client, cli.dump_buckets, cli.dry_run, cli.max_fee)
                 .await;
